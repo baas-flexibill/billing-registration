@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AB API Register Bill - Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              doku: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a5f",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-doku-900 text-white shadow-lg">
+      <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center gap-3">
+        <svg
+          class="w-8 h-8 text-doku-500"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"
+          />
+        </svg>
+        <div>
+          <h1 class="text-xl font-bold">AB API Register Bill</h1>
+          <p class="text-sm text-gray-300">Billing Registration Simulator</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-screen-2xl mx-auto px-6 py-8">
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- LEFT COLUMN: Form -->
+        <div class="flex-1 min-w-0 space-y-8">
+          <!-- Environment & Endpoint -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">
+              Environment & Endpoint
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Environment</label
+                >
+                <select
+                  id="environment"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                >
+                  <option value="sandbox">Sandbox</option>
+                  <option value="production">UAT</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >API Endpoint</label
+                >
+                <input
+                  id="endpoint"
+                  type="text"
+                  readonly
+                  class="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 font-mono"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- Request Headers -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">
+              Request Headers
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Client-Id <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="clientId"
+                  type="text"
+                  placeholder="e.g. BRN-0228-1748939308074"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Request-Id</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    id="requestId"
+                    type="text"
+                    placeholder="Auto-generated UUID"
+                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                  />
+                  <button
+                    onclick="generateRequestId()"
+                    class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm text-gray-700 transition whitespace-nowrap"
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Request-Timestamp</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    id="requestTimestamp"
+                    type="text"
+                    placeholder="ISO8601 UTC+0"
+                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                  />
+                  <button
+                    onclick="generateTimestamp()"
+                    class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm text-gray-700 transition whitespace-nowrap"
+                  >
+                    Now
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Secret Key <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="secretKey"
+                  type="password"
+                  placeholder="Secret key from DOKU Back Office"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Signature
+                  <span class="text-gray-400 text-xs font-normal"
+                    >(auto-generated)</span
+                  ></label
+                >
+                <div class="flex gap-2">
+                  <input
+                    id="signature"
+                    type="text"
+                    placeholder="Click Generate or will auto-generate on Send/Preview"
+                    readonly
+                    class="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 font-mono focus:outline-none focus:ring-2 focus:ring-doku-500"
+                  />
+                  <button
+                    onclick="generateSignatureFromForm()"
+                    class="px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-sm text-gray-700 transition whitespace-nowrap"
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Order -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Order</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Amount <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="orderAmount"
+                  type="number"
+                  value="125000"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Invoice Number <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="invoiceNumber"
+                  type="text"
+                  value="TEMP20260800010"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Currency</label
+                >
+                <select
+                  id="currency"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                >
+                  <option value="IDR" selected>IDR</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Language</label
+                >
+                <select
+                  id="language"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                >
+                  <option value="ID" selected>ID</option>
+                  <option value="EN">EN</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2 pt-6">
+                <input
+                  id="disableRetryPayment"
+                  type="checkbox"
+                  class="w-4 h-4 text-doku-600 rounded focus:ring-doku-500"
+                />
+                <label for="disableRetryPayment" class="text-sm text-gray-700"
+                  >Disable Retry Payment</label
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Bill Invoice Number
+                  <span class="text-gray-400 text-xs font-normal"
+                    >(additionalData)</span
+                  ></label
+                >
+                <input
+                  id="billInvoiceNumber"
+                  type="text"
+                  value="BILLLAGI020"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="mt-6">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-semibold text-gray-700">Line Items</h3>
+                <button
+                  onclick="addLineItem()"
+                  class="px-3 py-1 bg-doku-600 hover:bg-doku-700 text-white rounded-lg text-xs font-medium transition"
+                >
+                  + Add Item
+                </button>
+              </div>
+              <div id="lineItemsContainer" class="space-y-3"></div>
+            </div>
+          </section>
+
+          <!-- Payment -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Payment</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Payment Due Date (minutes)</label
+                >
+                <input
+                  id="paymentDueDate"
+                  type="number"
+                  value="1140"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div class="flex items-center gap-2 pt-6">
+                <input
+                  id="useOrderAmount"
+                  type="checkbox"
+                  checked
+                  class="w-4 h-4 text-doku-600 rounded focus:ring-doku-500"
+                />
+                <label for="useOrderAmount" class="text-sm text-gray-700"
+                  >Use Order Amount</label
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- Customer -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Customer</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Customer ID</label
+                >
+                <input
+                  id="customerId"
+                  type="text"
+                  value="CID000011"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Name</label
+                >
+                <input
+                  id="customerName"
+                  type="text"
+                  value="CUSTOMER"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Last Name</label
+                >
+                <input
+                  id="customerLastName"
+                  type="text"
+                  value="1"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Phone</label
+                >
+                <input
+                  id="customerPhone"
+                  type="text"
+                  value="0812345670000"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Email</label
+                >
+                <input
+                  id="customerEmail"
+                  type="email"
+                  value="customer1@dokutest.com"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+            </div>
+          </section>
+
+          <!-- Recurring -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Recurring</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Bill Number <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="billNumber"
+                  type="text"
+                  value="BILL000001"
+                  maxlength="20"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+                <p class="text-xs text-gray-400 mt-1">Max 20 characters</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Bill Detail</label
+                >
+                <input
+                  id="billDetail"
+                  type="text"
+                  value="Test Bill1"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Bill Type</label
+                >
+                <select
+                  id="billType"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                >
+                  <option value="SHOPPING">S - Shopping</option>
+                  <option value="INSTALLMENT">I - Installment</option>
+                  <option value="DONATION">D - Donation</option>
+                  <option value="PAYMENT">P - Payment</option>
+                  <option value="BILLING">B - Billing</option>
+                  <option value="BILLING_PAYMENT" selected>BP - Billing Payment</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Start Date <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="startDate"
+                  type="datetime-local"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >End Date <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="endDate"
+                  type="datetime-local"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Execute Type <span class="text-red-500">*</span></label
+                >
+                <select
+                  id="executeType"
+                  onchange="updateExecuteDateUI()"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                >
+                  <option value="DAY">DAY - By Day</option>
+                  <option value="DATE" selected>DATE - By Date</option>
+                  <option value="FULLDATE">FULLDATE - By Full Date</option>
+                </select>
+              </div>
+
+              <!-- Execute Date (DAY) -->
+              <div
+                id="executeDateDayContainer"
+                class="md:col-span-2 lg:col-span-3"
+              >
+                <label class="block text-sm font-medium text-gray-600 mb-2"
+                  >Execute Date - Days
+                  <span class="text-red-500">*</span></label
+                >
+                <div class="flex flex-wrap gap-2">
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="MON"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Mon</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="TUE"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Tue</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="WED"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Wed</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="THU"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Thu</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="FRI"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Fri</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="SAT"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Sat</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="SUN"
+                      class="execute-day w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Sun</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Execute Date (DATE) -->
+              <div
+                id="executeDateDateContainer"
+                class="md:col-span-2 lg:col-span-3 hidden"
+              >
+                <label class="block text-sm font-medium text-gray-600 mb-2"
+                  >Execute Date - Dates (1-28)
+                  <span class="text-red-500">*</span></label
+                >
+                <div
+                  class="flex flex-wrap gap-1.5"
+                  id="executeDateNumbers"
+                ></div>
+              </div>
+
+              <!-- Execute Date (FULLDATE) -->
+              <div
+                id="executeDateFulldateContainer"
+                class="md:col-span-2 lg:col-span-3 hidden"
+              >
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Execute Date - Full Date (yyyyMMdd)
+                  <span class="text-red-500">*</span></label
+                >
+                <input
+                  id="executeFullDate"
+                  type="text"
+                  placeholder="e.g. 20260125"
+                  class="w-full md:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+
+              <!-- Execute Month (visible for DATE type) -->
+              <div
+                id="executeMonthContainer"
+                class="md:col-span-2 lg:col-span-3 hidden"
+              >
+                <label class="block text-sm font-medium text-gray-600 mb-2"
+                  >Execute Month</label
+                >
+                <div class="flex flex-wrap gap-2">
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="JAN"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Jan</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="FEB"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Feb</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="MAR"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Mar</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="APR"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Apr</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="MAY"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">May</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="JUN"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Jun</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="JUL"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Jul</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="AUG"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Aug</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="SEP"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                      checked
+                    />
+                    <span class="text-sm">Sep</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="OCT"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Oct</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="NOV"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Nov</span>
+                  </label>
+                  <label
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      value="DEC"
+                      class="execute-month w-4 h-4 text-doku-600 rounded"
+                    />
+                    <span class="text-sm">Dec</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 pt-2">
+                <input
+                  id="flatStatus"
+                  type="checkbox"
+                  checked
+                  class="w-4 h-4 text-doku-600 rounded focus:ring-doku-500"
+                />
+                <label for="flatStatus" class="text-sm text-gray-700"
+                  >Flat Status (fixed amount)</label
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- URL -->
+          <section
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">URL</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Redirect Page Success</label
+                >
+                <input
+                  id="redirectPageSuccess"
+                  type="text"
+                  value="https://jsonformatter.org/"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Redirect Page Fail</label
+                >
+                <input
+                  id="redirectPageFail"
+                  type="text"
+                  value="https://api-uat.doku.com/biller-webview/web/error"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500"
+                />
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  id="autoredirectPage"
+                  type="checkbox"
+                  class="w-4 h-4 text-doku-600 rounded focus:ring-doku-500"
+                />
+                <label for="autoredirectPage" class="text-sm text-gray-700"
+                  >Auto Redirect Page</label
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap gap-3">
+            <button
+              onclick="sendRequest()"
+              id="sendBtn"
+              class="px-6 py-3 bg-doku-600 hover:bg-doku-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+              Send Request
+            </button>
+            <button
+              onclick="previewPayload()"
+              class="px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl border border-gray-300 shadow-sm hover:shadow transition-all flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+              Preview JSON
+            </button>
+            <button
+              onclick="resetForm()"
+              class="px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-xl border border-gray-300 shadow-sm hover:shadow transition-all flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset
+            </button>
+          </div>
+        </div>
+        <!-- end left column -->
+
+        <!-- RIGHT COLUMN: Preview & Response -->
+        <div class="w-full lg:w-[540px] lg:shrink-0">
+          <div
+            class="lg:sticky lg:top-6 space-y-6 max-h-[calc(100vh-3rem)] overflow-y-auto"
+          >
+            <!-- Empty State -->
+            <div
+              id="emptyState"
+              class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center"
+            >
+              <svg
+                class="w-16 h-16 mx-auto text-gray-300 mb-4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"
+                />
+              </svg>
+              <p class="text-gray-400 text-sm font-medium">
+                No request sent yet
+              </p>
+              <p class="text-gray-300 text-xs mt-1">
+                Click "Preview JSON" or "Send Request" to see results here
+              </p>
+            </div>
+
+            <!-- JSON Preview -->
+            <section id="jsonPreviewSection" class="hidden">
+              <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <div
+                  class="flex items-center justify-between px-6 py-3 bg-gray-800 text-white"
+                >
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="px-2 py-0.5 bg-green-600 text-xs font-bold rounded"
+                      >POST</span
+                    >
+                    <span
+                      id="previewEndpoint"
+                      class="text-sm font-mono text-gray-300"
+                    ></span>
+                  </div>
+                  <button
+                    onclick="copyJson()"
+                    class="text-xs text-gray-400 hover:text-white transition"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="px-6 py-3 border-b border-gray-700 bg-gray-900">
+                  <p
+                    class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2"
+                  >
+                    Headers
+                  </p>
+                  <pre
+                    id="headersPreview"
+                    class="text-sm font-mono text-green-400 whitespace-pre-wrap"
+                  ></pre>
+                </div>
+                <div class="px-6 py-3 bg-gray-900">
+                  <p
+                    class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2"
+                  >
+                    Body
+                  </p>
+                  <pre
+                    id="jsonPreview"
+                    class="text-sm font-mono text-green-400 whitespace-pre-wrap max-h-96 overflow-y-auto"
+                  ></pre>
+                </div>
+              </div>
+            </section>
+
+            <!-- Response -->
+            <section id="responseSection" class="hidden">
+              <div
+                class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+              >
+                <div
+                  class="flex items-center justify-between px-6 py-3 bg-gray-800"
+                >
+                  <div class="flex items-center gap-2">
+                    <span
+                      id="responseStatusBadge"
+                      class="px-2 py-0.5 text-xs font-bold rounded"
+                    ></span>
+                    <span
+                      id="responseStatus"
+                      class="text-sm text-gray-300 font-mono"
+                    ></span>
+                  </div>
+                  <span id="responseTime" class="text-xs text-gray-500"></span>
+                </div>
+                <div class="px-6 py-3 bg-gray-900">
+                  <p
+                    class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2"
+                  >
+                    Response Headers
+                  </p>
+                  <pre
+                    id="responseHeaders"
+                    class="text-sm font-mono text-yellow-400 whitespace-pre-wrap max-h-40 overflow-y-auto mb-4"
+                  ></pre>
+                  <p
+                    class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2"
+                  >
+                    Response Body
+                  </p>
+                  <pre
+                    id="responseBody"
+                    class="text-sm font-mono text-green-400 whitespace-pre-wrap max-h-96 overflow-y-auto"
+                  ></pre>
+                </div>
+              </div>
+            </section>
+          </div>
+          <!-- end sticky wrapper -->
+        </div>
+        <!-- end right column -->
+      </div>
+      <!-- end flex row -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-sm text-gray-400 py-6">
+      AB API Register Bill Simulator &mdash; For testing purposes only
+    </footer>
+
+    <script>
+      // ──── Constants ────
+      const ENDPOINTS = {
+        sandbox:
+          "https://api-sandbox.doku.com/ab-core-api/v1/billing-registration",
+        production:
+          "https://api-uat.doku.com/ab-core-api/v1/billing-registration",
+      };
+
+      // ──── Init ────
+      document.addEventListener("DOMContentLoaded", () => {
+        updateEndpoint();
+        generateRequestId();
+        generateTimestamp();
+        addLineItem();
+        buildDateNumbers();
+        setDefaultDates();
+        setDefaultSelections();
+        updateExecuteDateUI();
+      });
+
+      // ──── Environment ────
+      document
+        .getElementById("environment")
+        .addEventListener("change", updateEndpoint);
+      function updateEndpoint() {
+        const env = document.getElementById("environment").value;
+        document.getElementById("endpoint").value = ENDPOINTS[env];
+      }
+
+      // ──── Header Helpers ────
+      function generateRequestId() {
+        document.getElementById("requestId").value = crypto.randomUUID();
+      }
+      function generateTimestamp() {
+        document.getElementById("requestTimestamp").value = new Date()
+          .toISOString()
+          .replace(/\.\d{3}Z$/, "Z");
+      }
+
+      // ──── Default Dates ────
+      function setDefaultDates() {
+        const now = new Date();
+        const start = new Date("2026-11-20T00:00:00Z");
+        const end = new Date("2099-11-20T07:23:00Z");
+        document.getElementById("startDate").value =
+          toLocalDatetimeString(start);
+        document.getElementById("endDate").value = toLocalDatetimeString(end);
+      }
+      function toLocalDatetimeString(d) {
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+      function toISO8601UTC(datetimeLocalVal) {
+        if (!datetimeLocalVal) return "";
+        const d = new Date(datetimeLocalVal);
+        return d.toISOString().replace(/\.\d{3}Z$/, "Z");
+      }
+
+      // ──── Default Selections (execute date & month) ────
+      const DEFAULT_EXECUTE_DATES = ["01", "10"];
+      function setDefaultSelections() {
+        document
+          .querySelectorAll(".execute-date-num")
+          .forEach((cb) => (cb.checked = DEFAULT_EXECUTE_DATES.includes(cb.value)));
+        document
+          .querySelectorAll(".execute-month")
+          .forEach((cb) => (cb.checked = true));
+      }
+
+      // ──── Line Items ────
+      let lineItemCounter = 0;
+      function addLineItem() {
+        lineItemCounter++;
+        const container = document.getElementById("lineItemsContainer");
+        const div = document.createElement("div");
+        div.className =
+          "flex flex-wrap gap-3 items-end p-3 bg-gray-50 rounded-lg border border-gray-200";
+        div.id = `lineItem-${lineItemCounter}`;
+        div.innerHTML = `
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-xs text-gray-500 mb-1">Item ID</label>
+                    <input type="text" value="${lineItemCounter}" class="li-id w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                </div>
+                <div class="flex-1 min-w-[140px]">
+                    <label class="block text-xs text-gray-500 mb-1">Name</label>
+                    <input type="text" value="Item Name" class="li-name w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                </div>
+                <div class="w-20">
+                    <label class="block text-xs text-gray-500 mb-1">Qty</label>
+                    <input type="number" value="1" min="1" class="li-qty w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                </div>
+                <div class="w-28">
+                    <label class="block text-xs text-gray-500 mb-1">Price</label>
+                    <input type="number" value="125000" class="li-price w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                </div>
+                <div class="w-full flex flex-wrap gap-3">
+                    <div class="flex-1 min-w-[120px]">
+                        <label class="block text-xs text-gray-500 mb-1">Category</label>
+                        <input type="text" value="string" class="li-category w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                    </div>
+                    <div class="flex-1 min-w-[120px]">
+                        <label class="block text-xs text-gray-500 mb-1">Type</label>
+                        <input type="text" value="string" class="li-type w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                    </div>
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-xs text-gray-500 mb-1">URL</label>
+                        <input type="text" value="http://localhost" class="li-url w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                    </div>
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-xs text-gray-500 mb-1">Image URL</label>
+                        <input type="text" value="http://localhost" class="li-imageurl w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-doku-500">
+                    </div>
+                </div>
+                <button onclick="removeLineItem(${lineItemCounter})" class="px-2 py-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition text-lg leading-none">&times;</button>
+            `;
+        container.appendChild(div);
+      }
+      function removeLineItem(id) {
+        const el = document.getElementById(`lineItem-${id}`);
+        if (el) el.remove();
+      }
+
+      // ──── Execute Date Numbers (1-28) ────
+      function buildDateNumbers() {
+        const container = document.getElementById("executeDateNumbers");
+        for (let i = 1; i <= 28; i++) {
+          const label = document.createElement("label");
+          label.className =
+            "inline-flex items-center justify-center w-10 h-10 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-sm";
+          label.innerHTML = `<input type="checkbox" value="${String(i).padStart(2, '0')}" class="execute-date-num hidden peer"><span class="peer-checked:bg-doku-600 peer-checked:text-white w-full h-full flex items-center justify-center rounded-lg">${i}</span>`;
+          container.appendChild(label);
+        }
+      }
+
+      // ──── Execute Type Toggle ────
+      function updateExecuteDateUI() {
+        const type = document.getElementById("executeType").value;
+        document
+          .getElementById("executeDateDayContainer")
+          .classList.toggle("hidden", type !== "DAY");
+        document
+          .getElementById("executeDateDateContainer")
+          .classList.toggle("hidden", type !== "DATE");
+        document
+          .getElementById("executeDateFulldateContainer")
+          .classList.toggle("hidden", type !== "FULLDATE");
+        document
+          .getElementById("executeMonthContainer")
+          .classList.toggle("hidden", type !== "DATE");
+      }
+
+      // ──── Build Payload ────
+      function buildPayload() {
+        // Line items
+        const lineItems = [];
+        document.querySelectorAll('[id^="lineItem-"]').forEach((row) => {
+          lineItems.push({
+            id: row.querySelector(".li-id").value,
+            name: row.querySelector(".li-name").value,
+            quantity: parseInt(row.querySelector(".li-qty").value) || 1,
+            price: parseInt(row.querySelector(".li-price").value) || 0,
+            category: row.querySelector(".li-category").value,
+            url: row.querySelector(".li-url").value,
+            imageUrl: row.querySelector(".li-imageurl").value,
+            type: row.querySelector(".li-type").value,
+          });
+        });
+
+        // Execute date
+        const executeType = document.getElementById("executeType").value;
+        let executeDate = "";
+        if (executeType === "DAY") {
+          executeDate = Array.from(
+            document.querySelectorAll(".execute-day:checked"),
+          )
+            .map((cb) => cb.value)
+            .join(",");
+        } else if (executeType === "DATE") {
+          executeDate = Array.from(
+            document.querySelectorAll(".execute-date-num:checked"),
+          )
+            .map((cb) => cb.value)
+            .join(",");
+        } else {
+          executeDate = document.getElementById("executeFullDate").value;
+        }
+
+        // Execute month
+        let executeMonth = "";
+        if (executeType === "DATE") {
+          executeMonth = Array.from(
+            document.querySelectorAll(".execute-month:checked"),
+          )
+            .map((cb) => cb.value)
+            .join(",");
+        }
+
+        const body = {
+          order: {
+            amount: parseInt(document.getElementById("orderAmount").value) || 0,
+            invoiceNumber: document.getElementById("invoiceNumber").value,
+            currency: document.getElementById("currency").value,
+            language: document.getElementById("language").value,
+            disableRetryPayment: document.getElementById("disableRetryPayment")
+              .checked,
+            lineItems: lineItems,
+            additionalData: {
+              billInvoiceNumber:
+                document.getElementById("billInvoiceNumber").value,
+            },
+          },
+          payment: {
+            paymentDueDate:
+              parseInt(document.getElementById("paymentDueDate").value) || 0,
+            useOrderAmount: document.getElementById("useOrderAmount").checked,
+          },
+          customer: {
+            id: document.getElementById("customerId").value,
+            name: document.getElementById("customerName").value,
+            lastName: document.getElementById("customerLastName").value,
+            phone: document.getElementById("customerPhone").value,
+            email: document.getElementById("customerEmail").value,
+          },
+          recurring: {
+            billNumber: document.getElementById("billNumber").value,
+            billDetail: document.getElementById("billDetail").value,
+            billType: document.getElementById("billType").value,
+            startDate: toISO8601UTC(document.getElementById("startDate").value),
+            endDate: toISO8601UTC(document.getElementById("endDate").value),
+            executeType: executeType,
+            executeDate: executeDate,
+            flatStatus: document.getElementById("flatStatus").checked,
+          },
+          url: {
+            redirectPageSuccess: document.getElementById("redirectPageSuccess")
+              .value,
+            redirectPageFail: document.getElementById("redirectPageFail").value,
+            autoredirectPage:
+              document.getElementById("autoredirectPage").checked,
+          },
+        };
+
+        // Add optional executeMonth
+        if (executeMonth) {
+          body.recurring.executeMonth = executeMonth;
+        }
+
+        return body;
+      }
+
+      // ──── Signature Generation (Browser-compatible) ────
+      const REQUEST_TARGETS = {
+        sandbox: "/ab-core-api/v1/billing-registration",
+        production: "/ab-core-api/v1/billing-registration",
+      };
+
+      async function generateDigest(jsonBody) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(jsonBody);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = new Uint8Array(hashBuffer);
+        let binary = "";
+        hashArray.forEach((b) => (binary += String.fromCharCode(b)));
+        return btoa(binary);
+      }
+
+      async function generateSignature(
+        clientId,
+        requestId,
+        requestTimestamp,
+        requestTarget,
+        digest,
+        secret,
+      ) {
+        let componentSignature = "Client-Id:" + clientId;
+        componentSignature += "\n";
+        componentSignature += "Request-Id:" + requestId;
+        componentSignature += "\n";
+        componentSignature += "Request-Timestamp:" + requestTimestamp;
+        componentSignature += "\n";
+        componentSignature += "Request-Target:" + requestTarget;
+        if (digest) {
+          componentSignature += "\n";
+          componentSignature += "Digest:" + digest;
+        }
+
+        const encoder = new TextEncoder();
+        const keyData = encoder.encode(secret);
+        const msgData = encoder.encode(componentSignature);
+
+        const cryptoKey = await crypto.subtle.importKey(
+          "raw",
+          keyData,
+          { name: "HMAC", hash: "SHA-256" },
+          false,
+          ["sign"],
+        );
+        const sigBuffer = await crypto.subtle.sign("HMAC", cryptoKey, msgData);
+        const sigArray = new Uint8Array(sigBuffer);
+        let binary = "";
+        sigArray.forEach((b) => (binary += String.fromCharCode(b)));
+        return "HMACSHA256=" + btoa(binary);
+      }
+
+      async function generateSignatureFromForm() {
+        const clientId = document.getElementById("clientId").value;
+        const requestId = document.getElementById("requestId").value;
+        const requestTimestamp =
+          document.getElementById("requestTimestamp").value;
+        const secret = document.getElementById("secretKey").value;
+        const env = document.getElementById("environment").value;
+        const requestTarget = REQUEST_TARGETS[env];
+
+        if (!clientId || !secret) {
+          alert("Client-Id and Secret Key are required to generate signature.");
+          return;
+        }
+
+        const body = buildPayload();
+        const jsonBody = JSON.stringify(body);
+        const digest = await generateDigest(jsonBody);
+        const sig = await generateSignature(
+          clientId,
+          requestId,
+          requestTimestamp,
+          requestTarget,
+          digest,
+          secret,
+        );
+        document.getElementById("signature").value = sig;
+      }
+
+      function buildHeaders() {
+        return {
+          "Client-Id": document.getElementById("clientId").value,
+          "Request-Id": document.getElementById("requestId").value,
+          "Request-Timestamp":
+            document.getElementById("requestTimestamp").value,
+          Signature: document.getElementById("signature").value,
+          "Content-Type": "application/json",
+        };
+      }
+
+      // ──── Preview ────
+      async function previewPayload() {
+        // Auto-generate signature if secret key is provided
+        const secret = document.getElementById("secretKey").value;
+        if (secret) {
+          await generateSignatureFromForm();
+        }
+
+        const headers = buildHeaders();
+        const body = buildPayload();
+        const env = document.getElementById("environment").value;
+
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("previewEndpoint").textContent = ENDPOINTS[env];
+        document.getElementById("headersPreview").textContent = Object.entries(
+          headers,
+        )
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("\n");
+        document.getElementById("jsonPreview").textContent = JSON.stringify(
+          body,
+          null,
+          2,
+        );
+        document
+          .getElementById("jsonPreviewSection")
+          .classList.remove("hidden");
+      }
+
+      // ──── Copy JSON ────
+      function copyJson() {
+        const text = document.getElementById("jsonPreview").textContent;
+        navigator.clipboard.writeText(text);
+      }
+
+      // ──── Send Request ────
+      async function sendRequest() {
+        const btn = document.getElementById("sendBtn");
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Sending...`;
+
+        const env = document.getElementById("environment").value;
+        const url = ENDPOINTS[env];
+        document.getElementById("emptyState").classList.add("hidden");
+
+        // Auto-generate signature if secret key is provided
+        const secret = document.getElementById("secretKey").value;
+        if (secret) {
+          await generateSignatureFromForm();
+        }
+
+        const headers = buildHeaders();
+        const body = buildPayload();
+
+        // Also show the preview
+        await previewPayload();
+
+        const startTime = performance.now();
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(body),
+          });
+
+          const elapsed = Math.round(performance.now() - startTime);
+          const responseText = await response.text();
+
+          let formattedBody;
+          try {
+            formattedBody = JSON.stringify(JSON.parse(responseText), null, 2);
+          } catch {
+            formattedBody = responseText;
+          }
+
+          // Response headers
+          const respHeaders = [];
+          response.headers.forEach((value, key) => {
+            respHeaders.push(`${key}: ${value}`);
+          });
+
+          // Display
+          const section = document.getElementById("responseSection");
+          const badge = document.getElementById("responseStatusBadge");
+          const isSuccess = response.status >= 200 && response.status < 300;
+
+          badge.textContent = response.status;
+          badge.className = `px-2 py-0.5 text-xs font-bold rounded ${isSuccess ? "bg-green-600 text-white" : "bg-red-600 text-white"}`;
+          document.getElementById("responseStatus").textContent =
+            response.statusText;
+          document.getElementById("responseTime").textContent = `${elapsed}ms`;
+          document.getElementById("responseHeaders").textContent =
+            respHeaders.join("\n") || "(no headers exposed)";
+          document.getElementById("responseBody").textContent =
+            formattedBody || "(empty response)";
+
+          section.classList.remove("hidden");
+        } catch (err) {
+          const elapsed = Math.round(performance.now() - startTime);
+          const section = document.getElementById("responseSection");
+          const badge = document.getElementById("responseStatusBadge");
+
+          badge.textContent = "ERR";
+          badge.className =
+            "px-2 py-0.5 text-xs font-bold rounded bg-red-600 text-white";
+          document.getElementById("responseStatus").textContent =
+            "Network Error";
+          document.getElementById("responseTime").textContent = `${elapsed}ms`;
+          document.getElementById("responseHeaders").textContent = "";
+          document.getElementById("responseBody").textContent =
+            err.message +
+            "\n\nNote: If this is a CORS error, you may need to use a backend proxy or browser extension to bypass CORS restrictions for testing.";
+
+          section.classList.remove("hidden");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Send Request`;
+        }
+      }
+
+      // ──── Reset ────
+      function resetForm() {
+        document.getElementById("clientId").value = "";
+        document.getElementById("secretKey").value = "";
+        document.getElementById("signature").value = "";
+        generateRequestId();
+        generateTimestamp();
+        document.getElementById("orderAmount").value = "125000";
+        document.getElementById("invoiceNumber").value = "TEMP20260800010";
+        document.getElementById("billInvoiceNumber").value = "BILLLAGI020";
+        document.getElementById("currency").value = "IDR";
+        document.getElementById("language").value = "ID";
+        document.getElementById("disableRetryPayment").checked = false;
+        document.getElementById("paymentDueDate").value = "1140";
+        document.getElementById("useOrderAmount").checked = true;
+        document.getElementById("customerId").value = "CID000011";
+        document.getElementById("customerName").value = "CUSTOMER";
+        document.getElementById("customerLastName").value = "1";
+        document.getElementById("customerPhone").value = "0812345670000";
+        document.getElementById("customerEmail").value = "customer1@dokutest.com";
+        document.getElementById("billNumber").value = "BILL000001";
+        document.getElementById("billDetail").value = "Test Bill1";
+        document.getElementById("billType").value = "BILLING_PAYMENT";
+        document.getElementById("executeType").value = "DATE";
+        document.getElementById("flatStatus").checked = true;
+        document.getElementById("redirectPageSuccess").value = "https://jsonformatter.org/";
+        document.getElementById("redirectPageFail").value = "https://api-uat.doku.com/biller-webview/web/error";
+        document.getElementById("autoredirectPage").checked = false;
+        setDefaultDates();
+        setDefaultSelections();
+        updateExecuteDateUI();
+
+        // Reset line items
+        document.getElementById("lineItemsContainer").innerHTML = "";
+        lineItemCounter = 0;
+        addLineItem();
+
+        // Reset day checkboxes
+        document
+          .querySelectorAll(".execute-day")
+          .forEach(
+            (cb) =>
+              (cb.checked = ["MON", "TUE", "THU", "FRI"].includes(cb.value)),
+          );
+
+        // Hide panels
+        document.getElementById("jsonPreviewSection").classList.add("hidden");
+        document.getElementById("responseSection").classList.add("hidden");
+        document.getElementById("emptyState").classList.remove("hidden");
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
